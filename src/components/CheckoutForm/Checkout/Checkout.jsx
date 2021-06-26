@@ -24,7 +24,7 @@ const Checkout = ({ cart }) => {
     activeStep === 0 ? (
       <AdressForm checkoutToken={checkoutToken} next={next} />
     ) : (
-      <PaymentForm shippingData={shippingData}/>
+      <PaymentForm shippingData={shippingData} checkoutToken={checkoutToken}/>
     );
   const Confirmation = () => <div>Confirmation</div>;
   const [shippingData, setShippingData] = useState({});
