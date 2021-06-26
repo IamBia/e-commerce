@@ -14,9 +14,9 @@ import FormInput from "./CustomTextField";
 import { Code, ContactsOutlined } from "@material-ui/icons";
 
 const AdressForm = ({ checkoutToken }) => {
-
-    //constants
   const methods = useForm();
+
+  //useStates
 
   const [shippingCountries, setShippingCountries] = useState([]);
   const [shippingCountry, setShippingCountry] = useState("");
@@ -27,26 +27,54 @@ const AdressForm = ({ checkoutToken }) => {
   const [shippingOptions, setShippingOptions] = useState([]);
   const [shippingOption, setShippingOption] = useState("");
 
+  //constants
+
+  const countries = Object.entries(shippingCountries).map(([code, name]) => ({
+    id: code,
+    label: name,
+  }));
+
+
+  //Fetchs
+  //fetch countries
   const fetchShippingCountries = async (checkoutTokenId) => {
     const { countries } = await commerce.services.localeListShippingCountries(
       checkoutTokenId
     );
 
-
     setShippingCountries(countries);
-    setShippingCountry(Object.keys(countries)[0])
-
-    console.log(countries);
+    setShippingCountry(Object.keys(countries)[0]);
   };
 
-  const countries = Object.entries(shippingCountries).map(([code, name]) => ({id: code, label: name}))
-  console.log(countries)
+  //fetch subdivisions
+  const fetchSubdivisions = async (countryCode) => {
+    const { subdivisions } = await commerce.services.localeListSubdivisions(countryCode);
+
+    setShippingSubdivisions(subdivisions);
+    setShippingSubdivision(Object.keys(subdivisions)[0]);
+  };
+
+    //fetch subdivisions
+    const fetchShippingOptions = async (checkoutTokenId, country, region = null) => {
+        const options = await commerce.checkout.getShippingOptions(checkoutTokenId, {country, region})
+    
+        setShippingOptions(options)
+        setShippingOption(options[0].id)
+      };
 
   //useffects
 
   useEffect(() => {
     fetchShippingCountries(checkoutToken.id);
   }, []);
+
+  useEffect(() => {
+    if (shippingCountry) fetchSubdivisions(shippingCountry);
+  }, [shippingCountry]); // whenever the shipping country changes, we have to re-render the subdisivion
+
+  useEffect(() => {
+   if (shippingSubdivision) fetchShippingOptions(checkoutToken.id, shippingCountry, shippingSubdivision)
+  }, [shippingSubdivision]);
 
   return (
     <>
@@ -62,33 +90,41 @@ const AdressForm = ({ checkoutToken }) => {
             <FormInput required name="email" label="E-mail" />
             <FormInput required name="city" label="City" />
             <FormInput required name="zipcode" label="Postal code" />
-            
+
             <Grid item xs={12} sm={6}>
-                <InputLabel>Shipping Country</InputLabel>
-                <Select value={shippingCountry} fullWidth onChange={(e)=>setShippingCountry(e.target.value)}>
-                      {countries.map((country) => (                  
-                    <MenuItem key={country.id} value={country.id}>
-                        {country.label}
-                    </MenuItem>
-                      ))}
-                </Select>
+              <InputLabel>Shipping Country</InputLabel>
+              <Select
+                value={shippingCountry}
+                fullWidth
+                onChange={(e) => setShippingCountry(e.target.value)}
+              >
+                {countries.map((country) => (
+                  <MenuItem key={country.id} value={country.id}>
+                    {country.label}
+                  </MenuItem>
+                ))}
+              </Select>
             </Grid>
-            {/* <Grid item xs={12} sm={6}>
-                <InputLabel>Shipping Subdivision</InputLabel>
-                <Select value='' fullWidth onChange={}>
-                    <MenuItem key={} value={}>
-                        Select me
-                    </MenuItem>
-                </Select>
+            <Grid item xs={12} sm={6}>
+              <InputLabel>Shipping Subdivision</InputLabel>
+              <Select value={shippingSubdivision} fullWidth onChange={(e) => setShippingSubdivision(e.target.value)}>
+                {Object.entries(shippingSubdivisions).map(([code, name]) => ({ id: code, label: name })).map((item) => (
+                  <MenuItem key={item.id} value={item.id}>
+                    {item.label}
+                  </MenuItem>
+                ))}
+              </Select>
             </Grid>
             <Grid item xs={12} sm={6}>
                 <InputLabel>Shipping Options</InputLabel>
-                <Select value='' fullWidth onChange={}>
-                    <MenuItem key={} value={}>
-                        Select me
-                    </MenuItem>
+                <Select value={shippingOption} fullWidth onChange={(e)=> setShippingOption(e.target.value)}>
+                {shippingOptions.map((sO) => ({ id: sO.id, label: `${sO.description} - (${sO.price.formatted_with_symbol})` })).map((item) => (
+                     <MenuItem key={item.id} value={item.id}>
+                     {item.label}
+                   </MenuItem>
+                 ))}
                 </Select>
-            </Grid> */}
+            </Grid>
           </Grid>
         </form>
       </FormProvider>
