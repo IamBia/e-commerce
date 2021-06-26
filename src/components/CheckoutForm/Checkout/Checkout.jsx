@@ -10,7 +10,7 @@ import {
   Button,
   CssBaseline
 } from "@material-ui/core";
-import { Link } from "react-router-dom"
+import { Link, useHistory } from "react-router-dom"
 import useStyles from "./styles";
 import AdressForm from "../AdressForm";
 import PaymentForm from "../PaymentForm";
@@ -20,8 +20,15 @@ const steps = ["Shipping adress", "Payment details"];
 
 const Checkout = ({ cart, order, onCaptureCheckout, error }) => {
   const classes = useStyles();
+  const history = useHistory();
 
   const [activeStep, setActiveStep] = useState(0);
+  const [shippingData, setShippingData] = useState({});
+  const [checkoutToken, setCheckoutToken] = useState(null);
+  const [isFinished, setIsFinished] = useState(false)
+
+
+  //FORM
   const Form = () =>
     activeStep === 0 ? (
       <AdressForm checkoutToken={checkoutToken} next={next} />
@@ -32,8 +39,20 @@ const Checkout = ({ cart, order, onCaptureCheckout, error }) => {
         backStep={backStep}
         onCaptureCheckout={onCaptureCheckout}
         nextStep={nextStep}
+        timeout={timeout}
       />
     );
+
+
+    // TIMEOUT
+const timeout = ()=> {
+  setTimeout(() => {
+      setIsFinished(true)
+  }, 3000);
+}
+
+
+    //CONFIRMATION
   let Confirmation = () => order.customer ? (
     <>
     <div>
@@ -44,6 +63,15 @@ const Checkout = ({ cart, order, onCaptureCheckout, error }) => {
     <br/>
     <Button variant="outlined" type="button" component={Link} to="/">Back to home</Button>
     </>
+    ) : isFinished ? (
+      <>
+      <div>
+        <Typography variant="h5">Thank you for your purchase.</Typography>
+        <Divider className={classes.divider}/>
+      </div>
+      <br/>
+      <Button variant="outlined" type="button" component={Link} to="/">Back to home</Button>
+      </>
     ) : (
       <div className={classes.spinner}>
         <CircularProgress />
@@ -60,10 +88,8 @@ const Checkout = ({ cart, order, onCaptureCheckout, error }) => {
     } 
 
 
-  const [shippingData, setShippingData] = useState({});
 
-  const [checkoutToken, setCheckoutToken] = useState(null);
-
+//USE EFFECTS
   useEffect(() => {
     const generateToken = async () => {
       try {
@@ -73,11 +99,16 @@ const Checkout = ({ cart, order, onCaptureCheckout, error }) => {
 
         setCheckoutToken(token);
       } catch (error) {
-        console.log(error)
+       history.push('/')
       }
     };
     generateToken(); // in useeffect you cant use async unless it is in a separated function
   }, [cart]);
+
+
+
+
+  //NEXT AND BACK BUTTONS
 
   const nextStep = () => setActiveStep((prevActiveStep) => prevActiveStep + 1);
   const backStep = () => setActiveStep((prevActiveStep) => prevActiveStep - 1);
@@ -87,6 +118,10 @@ const Checkout = ({ cart, order, onCaptureCheckout, error }) => {
 
     nextStep();
   };
+
+
+
+  //APP
 
   return (
     <>
