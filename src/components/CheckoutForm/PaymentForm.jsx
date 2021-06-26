@@ -1,5 +1,5 @@
 import React from "react";
-import { typography, Button, Divider, Typography } from "@material-ui/core";
+import { Button, Divider, Typography } from "@material-ui/core";
 import {
   Elements,
   CardElement,
@@ -17,7 +17,7 @@ const PaymentForm = ({ checkoutToken, backStep, shippingData, onCaptureCheckout,
 
     if (!stripe || !elements) return;
 
-    const cardElement = elements.getElement(CardElement);
+    const CardElement = elements.getElement(CardElement);
 
     const { error, paymentMethod } = await stripe.createPaymentMethod({
       type: "card",
