@@ -8,7 +8,9 @@ import {
   CircularProgress,
   Divider,
   Button,
+  CssBaseline
 } from "@material-ui/core";
+import { Link } from "react-router-dom"
 import useStyles from "./styles";
 import AdressForm from "../AdressForm";
 import PaymentForm from "../PaymentForm";
@@ -16,7 +18,7 @@ import { commerce } from "../../../lib/commerce";
 
 const steps = ["Shipping adress", "Payment details"];
 
-const Checkout = ({ cart }) => {
+const Checkout = ({ cart, order, onCaptureCheckout, error }) => {
   const classes = useStyles();
 
   const [activeStep, setActiveStep] = useState(0);
@@ -24,9 +26,40 @@ const Checkout = ({ cart }) => {
     activeStep === 0 ? (
       <AdressForm checkoutToken={checkoutToken} next={next} />
     ) : (
-      <PaymentForm shippingData={shippingData} checkoutToken={checkoutToken}/>
+      <PaymentForm
+        shippingData={shippingData}
+        checkoutToken={checkoutToken}
+        backStep={backStep}
+        onCaptureCheckout={onCaptureCheckout}
+        nextStep={nextStep}
+      />
     );
-  const Confirmation = () => <div>Confirmation</div>;
+  let Confirmation = () => order.customer ? (
+    <>
+    <div>
+      <Typography variant="h5">Thank you for your purchase, {order.customer.firstname} {order.customer.lastname}</Typography>
+      <Divider className={classes.divider}/>
+      <Typography variant="subtitle2">Order ref: {order.customer_reference}</Typography>
+    </div>
+    <br/>
+    <Button variant="outlined" type="button" component={Link} to="/">Back to home</Button>
+    </>
+    ) : (
+      <div className={classes.spinner}>
+        <CircularProgress />
+      </div>
+    )
+
+    if(error) {
+      <>
+      <Typography variant="h5">Error: {error}</Typography>
+      <br/>
+      <Button variant="outlined" type="button" component={Link} to="/">Back to home</Button>
+
+      </>
+    } 
+
+
   const [shippingData, setShippingData] = useState({});
 
   const [checkoutToken, setCheckoutToken] = useState(null);
@@ -39,7 +72,9 @@ const Checkout = ({ cart }) => {
         });
 
         setCheckoutToken(token);
-      } catch (error) {}
+      } catch (error) {
+        console.log(error)
+      }
     };
     generateToken(); // in useeffect you cant use async unless it is in a separated function
   }, [cart]);
@@ -55,6 +90,7 @@ const Checkout = ({ cart }) => {
 
   return (
     <>
+    <CssBaseline/>
       <div className={classes.toolbar} />
       <main className={classes.layout}>
         <Paper className={classes.paper}>
