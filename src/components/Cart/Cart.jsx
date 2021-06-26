@@ -14,12 +14,14 @@ const Cart = ({
   const classes = useStyles();
 
   const EmptyCart = () => (
+
     <Typography variant="subtitle1">
-      You have no items in you shopping cart.{" "}
+      You have no items in you shopping cart.
       <Link to="/" className={classes.link}>
-        Please, add some
+        Please, add some 
       </Link>
     </Typography>
+      
   );
 
   const FilledCart = () => (
@@ -56,6 +58,8 @@ const Cart = ({
             type="button"
             variant="contained"
             color="primary"
+            component={Link} 
+            to="/checkout"
           >
             Checkout
           </Button>
@@ -72,7 +76,7 @@ const Cart = ({
       <Typography className={classes.title} variant="h3" gutterBottom>
         Your Shopping Cart
       </Typography>
-      {!cart.line_items.lenght ? <EmptyCart /> : <FilledCart />}
+      {cart.line_items.lenght === 0 ? <EmptyCart /> : <FilledCart />}
     </Container>
   );
 };
