@@ -20,8 +20,14 @@ const Checkout = ({ cart }) => {
   const classes = useStyles();
 
   const [activeStep, setActiveStep] = useState(0);
-  const Form = () => (activeStep === 0 ? <AdressForm checkoutToken={checkoutToken} /> : <PaymentForm />);
+  const Form = () =>
+    activeStep === 0 ? (
+      <AdressForm checkoutToken={checkoutToken} next={next} />
+    ) : (
+      <PaymentForm shippingData={shippingData}/>
+    );
   const Confirmation = () => <div>Confirmation</div>;
+  const [shippingData, setShippingData] = useState({});
 
   const [checkoutToken, setCheckoutToken] = useState(null);
 
@@ -38,6 +44,15 @@ const Checkout = ({ cart }) => {
     generateToken(); // in useeffect you cant use async unless it is in a separated function
   }, [cart]);
 
+  const nextStep = () => setActiveStep((prevActiveStep) => prevActiveStep + 1);
+  const backStep = () => setActiveStep((prevActiveStep) => prevActiveStep - 1);
+
+  const next = (data) => {
+    setShippingData(data);
+
+    nextStep();
+  };
+
   return (
     <>
       <div className={classes.toolbar} />
@@ -53,7 +68,11 @@ const Checkout = ({ cart }) => {
               </Step>
             ))}
           </Stepper>
-          {activeStep === steps.length ? <Confirmation /> : checkoutToken && <Form />}
+          {activeStep === steps.length ? (
+            <Confirmation />
+          ) : (
+            checkoutToken && <Form />
+          )}
         </Paper>
       </main>
     </>
