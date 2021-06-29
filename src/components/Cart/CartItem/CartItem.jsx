@@ -12,20 +12,21 @@ import useStyles from "./styles";
 const CartItem = ({ item, onRemoveFromCart, onUpdateCartQty }) => {
   const classes = useStyles();
 
+
   return (
-    <Card>
+    <Card style={{minHeight: '100%'}}>
       <CardMedia
         image={item.media.source}
         alt={item.name}
         className={classes.media}
       />
       <CardContent className={classes.cardContent}>
-        <Typography variant="h4">{item.name}</Typography>
+        <Typography variant="h4" style={{display: 'inline-block'}}>{item.name}</Typography>
         <Typography variant="h5">
           {item.line_total.formatted_with_symbol}
         </Typography>
       </CardContent>
-      <CardActions className={classes.cardActions}>
+      <CardActions className={classes.cardActions} style={{justifyContent: 'space-between'}}>
         <div className={classes.buttons}>
           <Button
             type="button"

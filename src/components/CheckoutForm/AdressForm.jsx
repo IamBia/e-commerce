@@ -12,7 +12,7 @@ import { commerce } from "../../lib/commerce";
 import { Link } from "react-router-dom";
 
 import FormInput from "./CustomTextField";
-import { Code, ContactsOutlined } from "@material-ui/icons";
+// import { Code, ContactsOutlined } from "@material-ui/icons";
 
 const AdressForm = ({ checkoutToken, next }) => {
   const methods = useForm();
@@ -61,7 +61,7 @@ const AdressForm = ({ checkoutToken, next }) => {
     setShippingSubdivision(Object.keys(subdivisions)[0]);
   };
 
-  //fetch subdivisions
+  //fetch shipping options
   const fetchShippingOptions = async (
     checkoutTokenId,
     country,
@@ -80,7 +80,7 @@ const AdressForm = ({ checkoutToken, next }) => {
 
   useEffect(() => {
     fetchShippingCountries(checkoutToken.id);
-  }, []);
+  });
 
   useEffect(() => {
     if (shippingCountry) fetchSubdivisions(shippingCountry);
